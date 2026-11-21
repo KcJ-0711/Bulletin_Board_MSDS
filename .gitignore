@@ -1,0 +1,11 @@
+# SQLite database & journal files
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# Python & virtual environment
+__pycache__/
+*.py[cod]
+.venv/
+venv/

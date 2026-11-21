@@ -1,0 +1,11 @@
+DROP TABLE IF EXISTS messages;
+
+CREATE TABLE messages (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    subject VARCHAR(100) NOT NULL,
+    sender VARCHAR(15) NOT NULL,
+    reply_to INTEGER,
+    text MEDIUMTEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (reply_to) REFERENCES messages (id)
+);
