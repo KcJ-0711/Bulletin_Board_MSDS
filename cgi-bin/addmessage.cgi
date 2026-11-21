@@ -40,7 +40,27 @@ if form.getvalue("submit"):
         print("<meta http-equiv='refresh' content='0;url=main.cgi'>")
         raise SystemExit
 
-heading = f"Reply to Message #{reply_to}" if reply_to is not None else "Post New Message"
+parent_subject = None
+if reply_to is not None:
+    conn = get_db()
+    curs = conn.cursor()
+    curs.execute("SELECT subject FROM messages WHERE id = ?", (reply_to,))
+    parent_row = curs.fetchone()
+    conn.close()
+    if parent_row:
+        parent_subject = parent_row["subject"]
+
+if reply_to is not None:
+    if parent_subject:
+        short_subj = parent_subject if len(parent_subject) <= 50 else parent_subject[:47].rstrip() + "..."
+        heading = f'Reply to Message #{reply_to}: "{short_subj}"'
+        default_subject = f"Re: {parent_subject}"[:100]
+    else:
+        heading = f"Reply to Message #{reply_to}"
+        default_subject = ""
+else:
+    heading = "Post New Message"
+    default_subject = ""
 hidden_reply = f'<input type="hidden" name="reply_to" value="{reply_to}">' if reply_to is not None else ""
 
 print(f"""<!DOCTYPE html>
@@ -55,7 +75,7 @@ print(f"""<!DOCTYPE html>
     <form method="post" action="addmessage.cgi">
         {hidden_reply}
         Subject:<br>
-        <input type="text" name="subject" maxlength="100" size="50" required><br><br>
+        <input type="text" name="subject" maxlength="100" size="50" value="{html.escape(default_subject)}" required><br><br>
         Sender (max 15 chars):<br>
         <input type="text" name="sender" maxlength="15" required><br><br>
         Text:<br>
